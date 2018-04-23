@@ -23,7 +23,7 @@ void UOpenDoor::BeginPlay()
 	AActor* Owner = GetOwner();//SetActorRotation(true,90);
 
 	//Implements a container for rotation information 
-	FRotator NewRotation = FRotator(0.0f, 90.0f, 0.0f); //Rotator object instantiation w/ parameters
+	FRotator NewRotation = FRotator(0.0f, 45.0f, 0.0f); //Rotator object instantiation w/ parameters
 	//							pitch = y, yaw = z, roll = x
 	//Owner->SetActorEnableCollision(true);
 	Owner->SetActorRotation(NewRotation);
