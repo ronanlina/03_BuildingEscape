@@ -49,7 +49,7 @@ void UOpenDoor::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompon
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
 	//polling the trigger volume. checking condition every frame
-	if (PressurePlateOpen->IsOverlappingActor(ActorThatOpens)) 
+	if (PressurePlate->IsOverlappingActor(ActorThatOpens)) 
 	{
 		OpenDoor();
 		LastDoorOpenTime = GetWorld()->GetTimeSeconds();
@@ -59,11 +59,5 @@ void UOpenDoor::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompon
 	{
 		CloseDoor();
 	}
-
-	if (PressurePlateClose->IsOverlappingActor(ActorThatOpens))
-	{
-		//CloseDoor();
-	}
-		// ...
 }
 
