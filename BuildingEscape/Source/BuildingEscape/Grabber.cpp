@@ -2,7 +2,7 @@
 
 #include "Grabber.h"
 #include "Gameframework/PlayerController.h"
-#include "DrawDebugHelpers.h"
+#include "DrawDebugHelpers.h" //for the debug line
 #include "Engine/World.h"
 
 #define OUT
@@ -33,6 +33,16 @@ void UGrabber::BeginPlay()
 	else
 	{
 		UE_LOG(LogTemp, Error,TEXT("%s missing physics handle component"), *GetOwner()->GetName())
+	}
+
+	InputComponent = GetOwner()->FindComponentByClass<UInputComponent>();
+	if (InputComponent)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("input component found"))
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("%s missing input component"), *GetOwner()->GetName())
 	}
 
 }
@@ -81,7 +91,7 @@ void UGrabber::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompone
 		TraceParameters
 	);
 
-	
+	//identifies which actor was hit
 	AActor* ActorHit = Hit.GetActor();
 
 	if (ActorHit)
