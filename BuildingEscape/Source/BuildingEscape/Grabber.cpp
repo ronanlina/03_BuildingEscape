@@ -39,7 +39,12 @@ void UGrabber::BeginPlay()
 	if (InputComponent)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("input component found"))
-	}
+			///Binding the input
+			InputComponent->BindAction("Grab", IE_Pressed, this, &UGrabber::UGrabber::Grab);// where grab is mapped in project settings>input>action mapping
+									//key map, key event, context(?), method
+			InputComponent->BindAction("Grab", IE_Released, this, &UGrabber::UGrabber::Release);
+	}								
+
 	else
 	{
 		UE_LOG(LogTemp, Error, TEXT("%s missing input component"), *GetOwner()->GetName())
@@ -47,6 +52,15 @@ void UGrabber::BeginPlay()
 
 }
 
+void UGrabber::Grab()
+{
+	UE_LOG(LogTemp, Warning, TEXT("Grab pressed"))
+}
+
+void UGrabber::Release()
+{
+	UE_LOG(LogTemp, Warning, TEXT("Grab released"))
+}
 
 // Called every frame
 void UGrabber::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
