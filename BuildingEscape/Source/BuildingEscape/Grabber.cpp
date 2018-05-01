@@ -14,27 +14,31 @@ UGrabber::UGrabber()
 	PrimaryComponentTick.bCanEverTick = true;
 }
 
-
 // Called when the game starts
 void UGrabber::BeginPlay()
 {
 	Super::BeginPlay();
 	FindPhysicsHandleComponent();
 	SetupInputComponent();
-	UE_LOG(LogTemp, Warning, TEXT("GRABBER REPORTING"));
+}
 
+FVector UGrabber::GetLineTraceEnd() 
+{
+	//get player view point
+	GetWorld()->GetFirstPlayerController()->GetPlayerViewPoint(
+		OUT PlayerViewPointPosition,
+		OUT PlayerViewPointRotation
+	);
 
+	//Line Trace End formula
+	return PlayerViewPointPosition + (PlayerViewPointRotation.Vector() * Reach);
 }
 
 void UGrabber::FindPhysicsHandleComponent()
 {
 	//finds physics handle component existing in the current pawn/blueprint
 	PhysicsHandle = GetOwner()->FindComponentByClass<UPhysicsHandleComponent>();
-	if (PhysicsHandle)
-	{
-
-	}
-	else
+	if (PhysicsHandle == nullptr)
 	{
 		UE_LOG(LogTemp, Error,TEXT("%s missing physics handle component"), *GetOwner()->GetName())
 	}
@@ -43,15 +47,12 @@ void UGrabber::FindPhysicsHandleComponent()
 void UGrabber::SetupInputComponent()
 {
 	InputComponent = GetOwner()->FindComponentByClass<UInputComponent>();
-	if (InputComponent)
+	if (InputComponent != nullptr)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("input component found"))
-			///Binding the input
 			InputComponent->BindAction("Grab", IE_Pressed, this, &UGrabber::UGrabber::Grab);// where grab is mapped in project settings>input>action mapping
 																							//key map, key event, context(?), method
-		InputComponent->BindAction("Grab", IE_Released, this, &UGrabber::UGrabber::Release);
+			InputComponent->BindAction("Grab", IE_Released, this, &UGrabber::UGrabber::Release);
 	}
-
 	else
 	{
 		UE_LOG(LogTemp, Error, TEXT("%s missing input component"), *GetOwner()->GetName())
@@ -60,8 +61,6 @@ void UGrabber::SetupInputComponent()
 
 void UGrabber::Grab()
 {
-	UE_LOG(LogTemp, Warning, TEXT("Grab pressed"))
-	
 		//LINE TRACE and Try and reach any actors with physice body collision channel set
 		auto HitResult = GetFirstPhysicsBodyInReach();
 		auto ComponentToGrab = HitResult.GetComponent();
@@ -77,40 +76,15 @@ void UGrabber::Grab()
 				true //allow the rotation
 				);
 		}
-		
 }
 
 void UGrabber::Release()
 {
-	UE_LOG(LogTemp, Warning, TEXT("Grab released"))
-
-		//Release physics handle
 		PhysicsHandle->ReleaseComponent();
 }
 
 const FHitResult UGrabber::GetFirstPhysicsBodyInReach()
 {
-	//get player view point
-	FVector PlayerViewPointPosition;
-	FRotator PlayerViewPointRotation;
-	GetWorld()->GetFirstPlayerController()->GetPlayerViewPoint(
-		OUT PlayerViewPointPosition,
-		OUT PlayerViewPointRotation
-	);
-
-	FVector LineTraceEnd = PlayerViewPointPosition + (PlayerViewPointRotation.Vector() * Reach);
-	//Draw red trace
-	DrawDebugLine(
-		GetWorld(),
-		PlayerViewPointPosition,
-		LineTraceEnd,
-		FColor(255, 0, 0),
-		false,
-		0.f,
-		0.f,
-		10.f
-	);
-
 	//setup query params
 	FCollisionQueryParams TraceParameters(FName(TEXT("")), false, GetOwner());
 
@@ -120,7 +94,7 @@ const FHitResult UGrabber::GetFirstPhysicsBodyInReach()
 	GetWorld()->LineTraceSingleByObjectType(
 		OUT Hit,
 		PlayerViewPointPosition,
-		LineTraceEnd,
+		GetLineTraceEnd(),
 		FCollisionObjectQueryParams(ECollisionChannel::ECC_PhysicsBody),
 		TraceParameters
 	);
@@ -140,23 +114,11 @@ void UGrabber::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompone
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	//get player view point
-	FVector PlayerViewPointPosition;
-	FRotator PlayerViewPointRotation;
-	GetWorld()->GetFirstPlayerController()->GetPlayerViewPoint(
-		OUT PlayerViewPointPosition,
-		OUT PlayerViewPointRotation
-	);
-
-	FVector LineTraceEnd = PlayerViewPointPosition + (PlayerViewPointRotation.Vector() * Reach);
-
 	// If the physics handle is attached
 	if (PhysicsHandle->GrabbedComponent)
 	{
-		PhysicsHandle->SetTargetLocation(LineTraceEnd);
+		PhysicsHandle->SetTargetLocation(GetLineTraceEnd());
 	}
 		// Move the object that we're holding
-
-	
 }
 

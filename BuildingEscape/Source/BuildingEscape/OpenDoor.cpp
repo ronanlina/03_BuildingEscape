@@ -5,8 +5,9 @@
 #include "Gameframework/PlayerController.h" //add header file for the GetWorld() to work
 #include "Engine/TriggerVolume.h"
 #include "Engine/World.h" //add header file for the GetWorld() to work
+#include "Components/PrimitiveComponent.h"
 
-
+#define OUT
 // Sets default values for this component's properties
 UOpenDoor::UOpenDoor()
 {
@@ -49,7 +50,7 @@ void UOpenDoor::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompon
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
 	//polling the trigger volume. checking condition every frame
-	if (PressurePlate->IsOverlappingActor(ActorThatOpens)) 
+	if (GetTotalMassOfActorsOnPlate() > TriggerMass) 
 	{
 		OpenDoor();
 		LastDoorOpenTime = GetWorld()->GetTimeSeconds();
@@ -59,5 +60,24 @@ void UOpenDoor::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompon
 	{
 		CloseDoor();
 	}
+}
+
+float UOpenDoor::GetTotalMassOfActorsOnPlate()
+{	
+	float TotalMass = 0.0f;
+	TArray<AActor*> OverLappingActors;
+
+	if (!PressurePlate) 
+	{ 
+		return TotalMass; 
+	}
+
+	PressurePlate->GetOverlappingActors(OUT OverLappingActors);
+
+	for (const auto* Actor : OverLappingActors)
+	{
+		TotalMass += Actor->FindComponentByClass<UPrimitiveComponent>()->GetMass();
+	}
+	return TotalMass;
 }
 
