@@ -30,21 +30,6 @@ void UOpenDoor::BeginPlay()
 	
 }
 
-void UOpenDoor::OpenDoor()
-{
-	////Create a rotator	   								    //Implements a container for rotation information 
-	//FRotator NewRotation = FRotator(0.0f, OpenAngle, 0.0f); //Rotator object instantiation w/ parameters
-	//														//pitch = y, yaw = z, roll = x
-	////Set door rotation 									//Owner->SetActorEnableCollision(true);
-	//Owner->SetActorRotation(NewRotation);
-	OnOpenRequest.Broadcast();// request for blueprint. you don't call an event you broadcast. blueprint will perfrom this
-}
-
-void UOpenDoor::CloseDoor()
-{			
-	Owner->SetActorRotation(FRotator(0.0f, -90.0f, 0.0f)); //shorter version of adding the Rotator object
-}
-
 // Called every frame
 void UOpenDoor::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
@@ -53,13 +38,17 @@ void UOpenDoor::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompon
 	//polling the trigger volume. checking condition every frame
 	if (GetTotalMassOfActorsOnPlate() > TriggerMass) 
 	{
-		OpenDoor();
-		LastDoorOpenTime = GetWorld()->GetTimeSeconds();
+		////Create a rotator	   								    //Implements a container for rotation information 
+		//FRotator NewRotation = FRotator(0.0f, OpenAngle, 0.0f); //Rotator object instantiation w/ parameters
+		//														//pitch = y, yaw = z, roll = x
+		////Set door rotation 									//Owner->SetActorEnableCollision(true);
+		//Owner->SetActorRotation(NewRotation);
+		OnOpen.Broadcast();// request for blueprint. you don't call an event you broadcast. blueprint will perfrom this
 	}
 
-	if (GetWorld()->GetTimeSeconds() - LastDoorOpenTime > DoorCloseDelay) // delay when closing
+	else // delay when closing
 	{
-		CloseDoor();
+		OnClose.Broadcast();
 	}
 }
 
