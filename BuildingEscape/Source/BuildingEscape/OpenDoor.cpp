@@ -32,11 +32,12 @@ void UOpenDoor::BeginPlay()
 
 void UOpenDoor::OpenDoor()
 {
-	//Create a rotator	   								    //Implements a container for rotation information 
-	FRotator NewRotation = FRotator(0.0f, OpenAngle, 0.0f); //Rotator object instantiation w/ parameters
-															//pitch = y, yaw = z, roll = x
-	//Set door rotation 									//Owner->SetActorEnableCollision(true);
-	Owner->SetActorRotation(NewRotation);
+	////Create a rotator	   								    //Implements a container for rotation information 
+	//FRotator NewRotation = FRotator(0.0f, OpenAngle, 0.0f); //Rotator object instantiation w/ parameters
+	//														//pitch = y, yaw = z, roll = x
+	////Set door rotation 									//Owner->SetActorEnableCollision(true);
+	//Owner->SetActorRotation(NewRotation);
+	OnOpenRequest.Broadcast();// request for blueprint. you don't call an event you broadcast. blueprint will perfrom this
 }
 
 void UOpenDoor::CloseDoor()
@@ -77,6 +78,7 @@ float UOpenDoor::GetTotalMassOfActorsOnPlate()
 	for (const auto* Actor : OverLappingActors)
 	{
 		TotalMass += Actor->FindComponentByClass<UPrimitiveComponent>()->GetMass();
+		UE_LOG(LogTemp, Warning, TEXT("%s is on pressure plate"), *Actor->GetName());
 	}
 	return TotalMass;
 }
